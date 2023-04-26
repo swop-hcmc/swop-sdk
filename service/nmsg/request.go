@@ -88,7 +88,7 @@ func (p *NMSG) QueueSubscribe(channelID *string, queue *string, fn func(ctx *Con
 
 		ctx, cancel := context.WithDeadline(context.Background(), *msgData.ExpiredAt)
 		defer cancel()
-		ctx = context.WithValue(ctx, keySendMsg, msgData)
+		ctx = context.WithValue(ctx, keySendMsg, msgData.Data)
 		customContext := Context{
 			Context: ctx,
 		}
