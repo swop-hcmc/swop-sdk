@@ -92,6 +92,9 @@ func (p *NMSG) QueueSubscribe(channelID *string, queue *string, fn func(ctx *Con
 		customContext := Context{
 			Context: ctx,
 		}
+		if time.Now().After(*msgData.ExpiredAt) {
+			return
+		}
 		//handle
 		cmdDone := make(chan bool)
 		go func() {
