@@ -5,6 +5,7 @@ import (
 	"encoding/json"
 	"errors"
 	"mime/multipart"
+	"path/filepath"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws"
@@ -13,17 +14,18 @@ import (
 )
 
 func (p *NMSG) Request(ctx context.Context, channelID *string, sendData map[string]interface{}) (receiveData map[string]interface{}, err error) {
+	MsgID := uuid.NewString()
 	CreatedTime := time.Now()
 	for key, value := range sendData {
 		switch v := value.(type) {
 		case []*multipart.FileHeader:
-			result, err := p.uploadMultiPartFile(ctx, v, "tmp", nil, aws.Time(time.Now().Add(30*time.Minute)))
+			result, err := p.uploadMultiPartFile(ctx, v, filepath.Join("tmp", MsgID, uuid.NewString()), nil, aws.Time(time.Now().Add(30*time.Minute)))
 			if err != nil {
 				return nil, err
 			}
 			sendData[key] = result
 		case *multipart.FileHeader:
-			result, err := p.uploadMultiPartFile(ctx, []*multipart.FileHeader{v}, "tmp", nil, aws.Time(time.Now().Add(30*time.Minute)))
+			result, err := p.uploadMultiPartFile(ctx, []*multipart.FileHeader{v}, filepath.Join("tmp", MsgID, uuid.NewString()), nil, aws.Time(time.Now().Add(30*time.Minute)))
 			if err != nil {
 				return nil, err
 			}
