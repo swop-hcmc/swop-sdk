@@ -81,7 +81,7 @@ func (p *NMSG) Request(ctx context.Context, channelID *string, sendData map[stri
 
 }
 
-func (p *NMSG) QueueSubscribe(channelID *string, queue *string, fn func(ctx Context)) (cancel func(), err error) {
+func (p *NMSG) QueueSubscribe(channelID *string, queue *string, fn func(ctx *Context)) (cancel func(), err error) {
 	sub, err := p.conn.QueueSubscribe(*channelID, *queue, func(msg *nats.Msg) {
 		msgData := networkMessage{}
 		_ = json.Unmarshal(msg.Data, &msgData)
@@ -92,7 +92,7 @@ func (p *NMSG) QueueSubscribe(channelID *string, queue *string, fn func(ctx Cont
 		customContext := Context{
 			Context: ctx,
 		}
-		fn(customContext)
+		fn(&customContext)
 		msgRep := customContext.GetReplyMsg()
 		if msgRep != nil {
 			databytes, err := json.Marshal(msgRep)

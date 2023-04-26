@@ -11,11 +11,11 @@ import (
 	"golang.org/x/sync/errgroup"
 )
 
-func (p *NMSG) uploadMultiPartFile(ctx context.Context, listFiles []*multipart.FileHeader, prefix string, Tagging *string, expiredTime *time.Time) ([]*s3manager.UploadOutput, error) {
+func (p *NMSG) uploadMultiPartFile(ctx context.Context, listFiles []*multipart.FileHeader, prefix string, Tagging *string, expiredTime *time.Time) ([]*s3manager.UploadInput, error) {
 
 	g, ctx := errgroup.WithContext(ctx)
 	g.SetLimit(3)
-	results := make([]*s3manager.UploadOutput, len(listFiles))
+	results := make([]*s3manager.UploadInput, len(listFiles))
 	for x := range listFiles {
 		a := x
 
@@ -26,18 +26,21 @@ func (p *NMSG) uploadMultiPartFile(ctx context.Context, listFiles []*multipart.F
 			}
 
 			uploader := s3manager.NewUploader(p.S3Sessions)
-			output, err := uploader.UploadWithContext(ctx, &s3manager.UploadInput{
+			fileInput := s3manager.UploadInput{
 				Bucket:      p.Bucket,
-				Key:         aws.String(filepath.Join(prefix, listFiles[x].Filename)),
+				Key:         aws.String(filepath.Join(prefix, listFiles[a].Filename)),
 				Body:        file,
 				ContentType: aws.String(listFiles[a].Header.Get("Content-Type")),
 				Expires:     expiredTime,
 				Tagging:     Tagging,
-			})
+			}
+			_, err = uploader.UploadWithContext(ctx, &fileInput)
+
 			if err != nil {
 				return err
 			}
-			results[a] = output
+
+			results[a] = &fileInput
 			return nil
 		})
 	}

@@ -8,11 +8,9 @@ import (
 	"github.com/nats-io/nats.go"
 )
 
-type key int
-
 const (
-	keySendMsg  key = iota
-	keyReplyMsg key = iota
+	keySendMsg  = iota
+	keyReplyMsg = iota
 
 	// ...
 )
@@ -25,7 +23,6 @@ const (
 type NmsgConfig struct {
 	S3Sessions  *session.Session
 	Bucket      *string
-	Prefix      *string
 	NatsURL     *string
 	NatsOptions []nats.Option
 }
@@ -46,10 +43,12 @@ type Context struct {
 }
 
 func (p *Context) GetSendMsg() map[string]interface{} {
-	return p.Context.Value(keySendMsg).(map[string]interface{})
+	result, _ := p.Context.Value(keySendMsg).(map[string]interface{})
+	return result
 }
 func (p *Context) GetReplyMsg() map[string]interface{} {
-	return p.Context.Value(keyReplyMsg).(map[string]interface{})
+	result, _ := p.Context.Value(keyReplyMsg).(map[string]interface{})
+	return result
 }
 
 func (p *Context) Reply(reply map[string]interface{}) {
