@@ -33,14 +33,18 @@ func main() {
 	dataToSend := map[string]interface{}{
 		"request": "value1",
 	}
-	rec, err := client.Request(context.Background(), aws.String("channel_test"), dataToSend)
+	ctxWTo, _ := context.WithTimeout(context.Background(), 1*time.Second)
+	rec, err := client.Request(ctxWTo, aws.String("channel_test"), dataToSend)
 	if err != nil {
-		log.Println(err)
+		log.Println("request_err: ", err)
+	} else {
+		log.Println(rec)
 	}
-	log.Println(rec)
 }
 func queueSub(c *nmsg.NMSG) {
 	cancel, err := c.QueueSubscribe(aws.String("channel_test"), aws.String("abc"), func(ctx *nmsg.Context) {
+		//Uncomment to see the request error deadline exceeded
+		//time.Sleep(5 * time.Second)
 		ctx.Reply(
 			map[string]interface{}{
 				"rep1": "value1",

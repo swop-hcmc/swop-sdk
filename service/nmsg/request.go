@@ -92,14 +92,25 @@ func (p *NMSG) QueueSubscribe(channelID *string, queue *string, fn func(ctx *Con
 		customContext := Context{
 			Context: ctx,
 		}
-		fn(&customContext)
-		msgRep := customContext.GetReplyMsg()
-		if msgRep != nil {
-			databytes, err := json.Marshal(msgRep)
-			if err == nil {
-				msg.Respond(databytes)
+		//handle
+		cmdDone := make(chan bool)
+		go func() {
+			fn(&customContext)
+			msgRep := customContext.GetReplyMsg()
+			if msgRep != nil {
+				databytes, err := json.Marshal(msgRep)
+				if err == nil {
+					msg.Respond(databytes)
+				}
+				//do nothing
 			}
-			//do nothing
+			cmdDone <- true
+		}()
+		select {
+		case <-ctx.Done():
+			return
+		case <-cmdDone:
+			return
 		}
 	})
 
