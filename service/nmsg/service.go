@@ -2,9 +2,11 @@ package nmsg
 
 import (
 	"context"
+	"errors"
 	"time"
 
 	"github.com/aws/aws-sdk-go/aws/session"
+	"github.com/mitchellh/mapstructure"
 	"github.com/nats-io/nats.go"
 )
 
@@ -45,6 +47,20 @@ type Context struct {
 func (p *Context) GetSendMsg() map[string]interface{} {
 	result, _ := p.Context.Value(keySendMsg).(map[string]interface{})
 	return result
+}
+func (p *Context) DecodeSendMessage(data interface{}) error {
+	result, ok := p.Context.Value(keySendMsg).(map[string]interface{})
+	if !ok {
+		return errors.New("wrong data")
+	}
+	cfg := &mapstructure.DecoderConfig{
+		Metadata: nil,
+		Result:   data,
+		TagName:  "json",
+	}
+	decoder, _ := mapstructure.NewDecoder(cfg)
+	decoder.Decode(result)
+	return nil
 }
 func (p *Context) GetReplyMsg() map[string]interface{} {
 	result, _ := p.Context.Value(keyReplyMsg).(map[string]interface{})

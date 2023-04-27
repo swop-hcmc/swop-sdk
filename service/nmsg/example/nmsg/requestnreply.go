@@ -46,6 +46,14 @@ func queueSub(c *nmsg.NMSG) {
 		//Uncomment to see the request error deadline exceeded
 		//time.Sleep(5 * time.Second)
 		log.Println("Received Msg: ", ctx.GetSendMsg())
+		//decode using json
+		type SampleStruct struct {
+			Request string `json:"request"`
+		}
+		a := SampleStruct{}
+		ctx.DecodeSendMessage(&a)
+		log.Println("Received struct messages: ", a)
+
 		ctx.Reply(
 			map[string]interface{}{
 				"rep1": "value1",
