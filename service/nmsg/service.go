@@ -62,12 +62,12 @@ func (p *Context) DecodeSendMessage(data interface{}) error {
 	decoder.Decode(result)
 	return nil
 }
-func (p *Context) GetReplyMsg() map[string]interface{} {
-	result, _ := p.Context.Value(keyReplyMsg).(map[string]interface{})
-	return result
+
+func (p *Context) GetReplyMsg() any {
+	return p.Context.Value(keyReplyMsg)
 }
 
-func (p *Context) Reply(reply map[string]interface{}) {
+func (p *Context) Reply(reply interface{}) {
 	p.Context = context.WithValue(p.Context, keyReplyMsg, reply)
 }
 
