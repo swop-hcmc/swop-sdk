@@ -35,7 +35,7 @@ type NMSG struct {
 }
 type networkMessage struct {
 	ExpiredAt *time.Time
-	Data      map[string]interface{}
+	Data      any
 	CreatedAt *time.Time
 	ID        string
 }
